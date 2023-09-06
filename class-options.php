@@ -504,7 +504,13 @@ class Options {
 		}
 
 		// Dynamically create file
-		$config_file = realpath( dirname( __FILE__ ) ) . '/js/' . 'h5pxapikatchu-config.js';
+		// on multisite installations, add the blog id to the config file name
+		if (is_multisite()) {
+			$blog_id = get_current_blog_id();
+			$config_file = realpath(dirname(__FILE__)) . '/js/' . 'h5pxapikatchu-config' . $blog_id . '.js';
+		} else {
+			$config_file = realpath(dirname(__FILE__)) . '/js/' . 'h5pxapikatchu-config.js';
+		}
 
 		// Set values depending on changed settings
 		$capture_all_h5p_content_types = isset( $new_values['capture_all_h5p_content_types'] ) ? '1' : '0';

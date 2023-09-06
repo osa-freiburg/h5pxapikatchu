@@ -36,7 +36,15 @@ function init() {
 	$h5pxapikatchu_options = new Options;
 
 	// Try to make sure that the configuration is set
-	$path = plugin_dir_path( __FILE__ ) . 'js' . '/' . 'h5pxapikatchu-config.js';
+	// on multisite installations, add the blog id to the config file name
+	if (is_multisite()) {
+		$blog_id = get_current_blog_id();
+		$path = plugin_dir_path(__FILE__) . 'js' . '/' . 'h5pxapikatchu-config' . $blog_id . '.js';
+	} else {
+		$path = plugin_dir_path(__FILE__) . 'js' . '/' . 'h5pxapikatchu-config.js';
+	}
+
+
 	if ( ! file_exists( $path ) ) {
 		$config_data = get_option( 'h5pxapikatchu_option' );
 		Options::update_config_file( $config_data );
@@ -455,13 +463,28 @@ function alter_h5p_scripts( &$scripts, $libraries, $embed_type ) {
 	 * wp_localize_script cannot run if WordPress is bypassed by using
 	 * embed code or direct link.
 	 */
-	$path = plugin_dir_path( __FILE__ ) . 'js' . '/' . 'h5pxapikatchu-config.js';
-	if ( file_exists( $path ) ) {
-		$scripts[] = (object) array(
-			'path'    => plugins_url( 'js/h5pxapikatchu-config.js', __FILE__ ),
-			'version' => '?ver=' . H5PXAPIKATCHU_VERSION,
-		);
+	// on multisite installations, add the blog id to the config file name
+	if (is_multisite()) {
+		$blog_id = get_current_blog_id();
+
+		$path = plugin_dir_path(__FILE__) . 'js' . '/' . 'h5pxapikatchu-config' . $blog_id . '.js';
+		if (file_exists($path)) {
+			$scripts[] = (object) array(
+				'path' => plugins_url('js/h5pxapikatchu-config' . $blog_id . '.js', __FILE__),
+				'version' => '?ver=' . H5PXAPIKATCHU_VERSION,
+			);
+		}
+	} else {
+		$path = plugin_dir_path(__FILE__) . 'js' . '/' . 'h5pxapikatchu-config.js';
+		if (file_exists($path)) {
+			$scripts[] = (object) array(
+				'path' => plugins_url('js/h5pxapikatchu-config.js', __FILE__),
+				'version' => '?ver=' . H5PXAPIKATCHU_VERSION,
+			);
+		}
 	}
+
+	
 
 	$scripts[] = (object) array(
 		'path'    => plugins_url( 'js/h5pxapikatchu-listener.js', __FILE__ ),
